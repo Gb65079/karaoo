@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+<body>
+    <header>
+        <div class="user connected">
+            <img src="../images/user.webp" alt="User">
+            <div class="status">
+            </div>
+        </div>
+
+        <div class="song">
+            <img src="../images/user.webp" alt="" srcset="" crossorigin="anonymous" id='music-thumb'>
+            <div class="infos">
+                <h2 id="music-title">Amor de Que</h2>
+                <div id="duration">00:00 / 00:00</div>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="box-player">
+            <div class="points up">+ 200</div>
+            <h2 id="music-box-title">Amor de Que</h2>
+            <div id="content">
+                
+            </div>
+        </div>
+        <div class="controls">
+            <button id="play" onclick="player.play()">
+                <i class="icon-play_arrow"></i>
+            </button>
+        </div>
+    </main>
+    
+    <div class="settings-screen" style="display: none;">
+        <h2>Settings</h2>
+        <div class="close-window"><i class="icon-cancel"></i></div>
+
+        <hr>
+
+        <h3>Jogo</h3>
+
+        <div class="option">
+           <label class="switch">
+  <input type="checkbox">
+  <span class="slider"></span>
+</label>  Cancelar Voz
+            <p>cancela a voz do cantor na música</p>
+        </div>
+
+    </div>
+    <!-- Fundo escuro do Modal (Overlay) -->
+<div id="modal" class="modal-overlay">
+    
+    <!-- Caixa do Conteúdo -->
+    <div class="modal-container">
+        <button class="close-modal-btn">&times;</button>
+        <h2>Título do Modal</h2>
+        <p>Conteúdo da sua caixinha aqui...</p>
+    </div>
+
+</div>
+
+    <script src="../core/Liricle.js"></script>
+    <script src="../core/Mic.js"></script>
+    <script src="../core/Player.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

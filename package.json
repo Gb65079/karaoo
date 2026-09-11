@@ -1,0 +1,38 @@
+{
+  "name": "karaoo",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "assets/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.aaa.karaoo",
+    "productName": "Karaoo",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "karaoke.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Karaoo",
+      "installerIcon": "karaoke.ico",
+      "uninstallerIcon": "karaoke.ico",
+      "installerHeaderIcon": "karaoke.ico"
+    }
+  }
+}
