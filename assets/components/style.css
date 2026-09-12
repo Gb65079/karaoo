@@ -447,7 +447,9 @@ input:checked + .slider:before {
     text-align: center;
     border-radius: 15px;
     background: var(--accent);
-    margin: 5px
+    margin: 5px;
+    cursor: pointer;
+    transition: var(--transition);
 }
 
 .button.another {
@@ -460,7 +462,29 @@ input:checked + .slider:before {
     border-radius: 15px;
     text-align: left;
     margin: 10px;
+    cursor: pointer;
     border: 1px solid rgba(255, 0, 127, 0.3);
+    transition: var(--transition);
+}
+
+.mic-box {
+    margin: 10px;
+    border: 1px solid rgba(255, 0, 127, 0.3);
+    padding: 15px;
+    border-radius: 25px;
+    align-items: start;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.mic-box i {
+    background: rgb(255, 0, 127, 0.2);
+    padding: 10px;
+    border-radius: 1in;
+}
+
+.button:hover, .music-box:hover, .mic-box:hover {
+    transform: scale(1.05);
 }
 
 /* Animações */

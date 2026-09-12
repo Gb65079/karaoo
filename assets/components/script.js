@@ -293,7 +293,7 @@ function multiplayerMode() {
         document.getElementsByTagName('header')[0]
         .innerHTML += `
         <div class="user connected" id="player2">
-            <img src="../images/user.webp" alt="User">
+            <img src="../images/user.png" alt="User">
             <div class="status">
             </div>
         </div>`;
@@ -477,8 +477,49 @@ function collectInfos(info) {
 
     break;
     }
-    case 4: 
-        song = songs[info];
+
+    case 4:
+    case 5: {
+      if(!song) song = songs[info];
+      else player.players[0].micId = info;
+      if(player.preferences.gameType == "multiplayer" && !Array.isArray(player.players)) player.players = [{
+      player: 1,
+      micId: null,
+      points: 0
+    }, {
+      player: 2,
+      micId: null,
+      points: 0
+    }];
+        (async()=>{
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+
+    const microfones = devices.filter(device => device.kind === 'audioinput');
+
+    const listaFormatada = microfones.map((mic, index) => ({
+      id: mic.deviceId, 
+      nome: mic.label || `Microfone ${index + 1}`,
+      disponivel: player.players.find(h=>h.micId == mic.deviceId)? false : true
+    }));
+
+        openModal(`
+        <h3 style="margin: 2px">Como escuto</h3>
+        ${player.players[0].micId? "qual microfone o segundo jogador vai jogar?" : "qual microfone você vai usar?"}
+        ${listaFormatada.map(x=>
+            x.disponivel?
+            `
+            <div class="mic-box" onclick="collectInfos('${x.id}')"><i class='icon-mic'></i> ${x.nome}</div>
+            ` : ""
+        ).join(" ")}
+        `)
+        })();
+        
+        break;
+    }
+    case 6: 
+    player.players[1].micId = info;
         openModal(`
         <h3 style="margin: 2px">Tudo Pronto!</h3>
         Antes de você cantar... vamos gerar o gabarito das notas....

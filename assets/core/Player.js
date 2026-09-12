@@ -4,11 +4,7 @@ class Player {
     this.audio = new Audio();
     this.liricle = new Liricle();
     this.preferences = {};
-    this.players = {
-      player: 1,
-      micId: null,
-      points: 0
-    };
+    this.players = {};
 
     this.mic = new Mic();
 
