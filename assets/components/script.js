@@ -501,7 +501,7 @@ function collectInfos(info) {
     const listaFormatada = microfones.map((mic, index) => ({
       id: mic.deviceId, 
       nome: mic.label || `Microfone ${index + 1}`,
-      disponivel: player.players.find(h=>h.micId == mic.deviceId)? false : true
+      disponivel: player.players?.find(h=>h.micId == mic.deviceId)? false : true
     }));
 
         openModal(`
@@ -526,6 +526,8 @@ function collectInfos(info) {
         
         `)
 
+        player.mic.setDevice(player.players[0].micId);
+
         player.init();
 
     break;
@@ -533,6 +535,121 @@ function collectInfos(info) {
         }
     steps = steps + 1;
 
+}
+
+function morePoints(array, atributo) {
+  if (!array || array.length === 0) return null; // Evita erros se o array estiver vazio
+
+  return array.reduce((maior, atual) => {
+    return atual[atributo] > maior[atributo] ? atual : maior;
+  });
+}
+
+
+function finish() {
+    const finishScreen = document.getElementsByClassName("finish-screen")[0];
+    const user = document.getElementsByClassName("user");
+
+    finishScreen.classList.add("show");
+
+    document.body.style.overflow = "hidden";
+
+    setTimeout(()=>{
+        finishScreen.style.background="var(--background)"
+
+        user[0].querySelector("img").style.transform = "scale(2.30)"
+        user[0].style.top = "50%"
+        user[0].style.right = "65%"
+        
+        user[1].querySelector("img").style.transform = "scale(2.30)"
+        user[1].style.top = "50%"
+        user[1].style.right = "35%"
+
+        const userStatus = user[0].querySelector(".status");
+        const userStatus2 = user[1].querySelector(".status");
+        
+        userStatus.classList.add('big')
+        userStatus2.classList.add('big')
+
+        for (let i = -1; i <= player.players[0].points; i++) {
+            
+
+            setTimeout(() => {
+            if(i > 500) {
+                userStatus.classList.add("points-up")
+                userStatus.classList.contains("points-minus")? 
+                userStatus.classList.remove("points-minus") :
+                "";
+                
+            } else if(i > 100) {
+                userStatus.classList.add("points-minus")
+                
+                userStatus.classList.contains("points-down")? 
+                userStatus.classList.remove("points-down") :
+                "";
+
+            } else userStatus.classList.add("points-down")
+            userStatus.innerHTML = i;
+
+            if(i >= player.players[0].points) {
+                userStatus.classList.add("finish")
+                userStatus.classList.remove('big')
+            }
+
+    }, i * 10); 
+        }
+
+        for (let i = -1; i <= player.players[1].points; i++) {
+            setTimeout(() => {
+            if(i > 500) {
+                userStatus2.classList.add("points-up")
+                userStatus2.classList.contains("points-minus")? 
+                userStatus2.classList.remove("points-minus") :
+                "";
+                
+            } else if(i > 100) {
+                userStatus2.classList.add("points-minus")
+                
+                userStatus2.classList.contains("points-down")? 
+                userStatus2.classList.remove("points-down") :
+                "";
+
+            } else userStatus2.classList.add("points-down")
+            userStatus2.innerHTML = i;
+
+            if(i >= player.players[1].points) {
+                userStatus2.classList.add("finish")
+                userStatus2.classList.remove('big')
+            }
+
+    }, i * 10); 
+        }
+
+
+        setTimeout(()=>{
+            const userMorePoints = morePoints(player.players, "points");
+        
+            user[userMorePoints.player - 1].querySelector("img").style.transform = "scale(5)"
+            user[userMorePoints.player - 1].style.right = "50%"
+
+            const multiplayerPosition = 
+                userMorePoints.player - 1 == 0? 
+                1 : 0;
+
+            console.log(multiplayerPosition)
+
+            user[multiplayerPosition].style.right = "80%"
+            user[multiplayerPosition].querySelector("img").style.transform = "scale(1.50)"
+            user[multiplayerPosition].style.opacity = "0.5"
+            user[multiplayerPosition].querySelector(".status")
+            .classList
+            .remove("finish")
+            .add("big");
+            
+
+        }, player.players[0].points + player.players[1].points * 16)
+
+    }, 800);
 }
 
 document.addEventListener('keydown', (event) => {

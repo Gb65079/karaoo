@@ -265,6 +265,7 @@ main {
     right: 80px;
     animation: flutuate 3s ease-in-out infinite;
     z-index: 10;
+    transition: var(--transition);
 }
 
 .user:first-child {
@@ -280,6 +281,7 @@ main {
     border: 2px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 0 15px rgba(0,0,0,0.5);
     object-fit: cover;
+    transition: var(--transition);
 }
 
 .user.connected img {
@@ -297,6 +299,20 @@ main {
     border-radius: 10px;
     background: #0a0a12;
     border: 1px solid var(--boxes);
+    transition: var(--transition);
+}
+
+.user .status.big {
+    transform: scale(2.8);
+    bottom: 120px;
+    right: 15px;
+}
+
+.user .status.finish {
+    transform: scale(6);
+    bottom: 200px;
+    right: 15px;
+    border: 0.5px solid var(--boxes);
 }
 
 .user .status.points-up { color: var(--color-perfect); }
@@ -485,6 +501,22 @@ input:checked + .slider:before {
 
 .button:hover, .music-box:hover, .mic-box:hover {
     transform: scale(1.05);
+}
+
+.finish-screen {
+    background: #fff;
+    opacity: 0;
+    display: none;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    transition: var(--transition);
+
+}
+
+.finish-screen.show {
+    display: block;
+    opacity: 1;
 }
 
 /* Animações */
