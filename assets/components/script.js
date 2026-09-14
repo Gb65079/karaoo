@@ -1,6 +1,5 @@
 const songs = [{
     title: "Amor de Que - Pabllo Vittar",
-    duration: 0,
     file: "../songs/pablo.mp3",
     lyrics: `[ti:Amor de Que]
 [ar:Pabllo Vittar]
@@ -51,237 +50,10 @@ const songs = [{
 [02:15.32]Eu te amo, pai, tu sabe
 [02:18.66]Mas o meu amor é amor de quenga`
 }, {
-    title: "Total Eclipse of the Heart - Bonnie Tyler",
-    file: "../songs/bonnie.mp3",
-    duration: 0,
-    lyrics: `[00:07.70](Turn around)
-[00:09.70]Every now and then
-[00:10.70]I get a little bit lonely
-[00:12.90]And you're never coming round
-[00:15.10](Turn around)
-[00:16.80]Every now and then
-[00:18.20]I get a little bit tired
-[00:20.10]Of listening to the sound of my tears
-[00:22.80](Turn around)
-[00:24.40]Every now and then
-[00:25.60]I get a little bit nervous
-[00:27.60]That the best of all the years have gone by
-[00:30.40](Turn around)
-[00:31.50]Every now and then I get a little bit terrified
-[00:35.50]And then I see the look in your eyes
-[00:37.80](Turn Around, bright eyes)
-[00:41.10]Every now and then I fall apart
-[00:43.50](Turn Around, bright eyes)
-[00:46.50]Every now and then
-[00:47.80]I fall apart
-[00:48.70](Turn around)
-[00:50.70]Every now and then
-[00:51.50]I get a little bit restless
-[00:53.70]And I dream of something wild
-[00:55.50](Turn around)
-[00:57.40]Every now and then
-[00:58.90]I get a little bit helpless
-[01:00.70]And I'm lying like a child in your arms
-[01:03.20](Turn around)
-[01:04.60]Every now and then
-[01:06.50]I get a little bit angry
-[01:08.30]And I know I've got to get out and cry
-[01:10.90](Turn around)
-[01:12.00]Every now and then
-[01:13.60]I get a little bit terrified
-[01:15.80]But then I see the look in your eyes
-[01:18.20](Turn Around, bright eyes)
-[01:21.50]Every now and then
-[01:22.60]I fall apart
-[01:23.70]Turn around, bright eyes
-[01:27.00]Every now and then
-[01:28.20]I fall apart
-[01:30.00]And I need you now tonight
-[01:33.70]And I need you more than ever
-[01:36.90]And if you only hold me tight
-[01:41.30]We'll be holding on forever
-[01:44.60]And we'll only be making it right
-[01:48.20]'Cause we'll never be wrong
-[01:50.20]Together we can take it to the end of the line
-[01:54.40]Your love is like a shadow on me all of the time
-[01:57.70](All of the time)
-[01:59.40]I don't know what to do and I'm always in the dark
-[02:02.90]We're living in a powder keg and giving off sparks
-[02:06.60]I really need you tonight
-[02:09.20]Forever's gonna start tonight
-[02:13.60](Forever's gonna start tonight)
-[02:15.80]Once upon a time
-[02:16.80]I was falling in love
-[02:19.50]But now I'm only falling apart
-[02:24.70]There's nothing I can do
-[02:26.40]A total eclipse of the heart
-[02:35.80]Once upon a time there was light in my life
-[02:39.30]But now there's only love in the dark
-[02:43.10]Nothing I can say
-[02:44.90]A total eclipse of the heart
-[03:27.10](Turn Around, bright eyes)
-[03:30.60]Every now and then
-[03:31.40]I fall apart
-[03:32.60]Turn around, bright eyes
-[03:35.70]Every now and then
-[03:36.80]I fall apart
-[03:39.10]And I need you now tonight
-[03:41.80]And I need you more than ever
-[03:45.60]And if you only hold me tight
-[03:49.30]We'll be holding on forever
-[03:52.70]And we'll only be making it right
-[03:56.60]'Cause we'll never be wrong
-[03:58.50]Together we can take it to the end of the line
-[04:01.90]Your love is like a shadow on me all of the time
-[04:05.90](All of the time)
-[04:07.30]I don't know what to do and I'm always in the dark
-[04:10.70]We're living in a powder keg and giving off sparks
-[04:16.50]I really need you tonight
-[04:19.30]Forever's gonna start tonight
-[04:22.50](Forever's gonna start tonight)
-[04:25.60]Once upon a time
-[04:26.40]I was falling in love
-[04:28.30]But now I'm only falling apart
-[04:33.60]There's nothing I can do
-[04:35.50]A total eclipse of the heart
-[04:45.20]Once upon a time there was light in my life
-[04:48.70]But now there's only love in the dark
-[04:52.70]Nothing I can say
-[04:54.40]A total eclipse of the heart
-[05:01.80]A total eclipse of the heart
-[05:10.20](Turn Around, bright eyes)
-[05:17.30](Turn Around, bright eyes)
-[05:21.20](Turn around)
-[05:27.20]www.RentAnAdviser.com`
-}, {
-    
-    title: "Dona de mim - IZA",
-    file: "../songs/iza.mp3",
-    duration: 0,
-    lyrics: `[00:10.12] Já me perdi tentando me encontrar
-[00:13.15] Já fui embora querendo nem voltar
-[00:15.91] Penso duas vezes antes de falar
-[00:18.61] Porque a vida é louca, mano, a vida é louca
-[00:21.78] Sempre fiquei quieta, agora vou falar
-[00:24.19] Se você tem boca, aprende a usar
-[00:27.03] Sei do meu valor e a cotação é dólar
-[00:30.02] Porque a vida é louca, mano, a vida é louca
-[00:33.94] Me perdi pelo caminho
-[00:39.02] Mas não paro, não
-[00:44.66] Já chorei mares e rios
-[00:49.94] Mas não afogo não
-[00:55.11] Sempre dou o meu jeitin
-[00:57.77] É bruto, mas é com carin
-[01:00.70] Porque Deus me fez assim
-[01:03.26] Dona de mim
-[01:05.79] Deixo a minha fé guiar
-[01:08.66] Sei que um dia chego lá
-[01:11.52] Porque Deus me fez assim
-[01:14.20] Dona de mim
-[01:29.47] Já não me importa a sua opinião
-[01:31.80] O seu conceito não altera minha visão
-[01:34.74] Foi tanto sim que agora eu digo não
-[01:37.61] Porque a vida é louca, mano, a vida é louca
-[01:40.60] Quero saber só do que me faz bem
-[01:43.29] Papo furado não me entretém
-[01:46.23] Não me limite que eu quero ir além
-[01:48.89] Porque a vida é louca, mano, a vida é louca
-[01:52.06] Me perdi pelo caminho
-[01:58.24] Mas não paro, não
-[02:02.96] Já chorei mares e rios
-[02:08.94] Mas não afogo não
-[02:14.11] Sempre dou o meu jeitin
-[02:16.77] É bruto, mas é com carin
-[02:19.17] Porque Deus me fez assim
-[02:21.98] Dona de mim
-[02:25.28] Deixo a minha fé guiar
-[02:27.84] Sei que um dia chego lá
-[02:30.30] Porque Deus me fez assim
-[02:32.77] Dona de mim
-[02:37.81] Ah ah ah
-[02:43.11] Yeah yeah
-[02:46.45] Ah ah ah
-[02:50.35] Ah ah ah (yeah yeah)
-[02:52.78] Ah ah ah
-[02:57.11] Ai ai ai
-[03:02.14] Ai ai ai, ai ai ai
-[03:12.06] Yeah, yeah, yeah`
-}, {
-    title: "Clareou",
-    file: "../songs/clareou.mp3",
-    duration: 0,
-    lyrics: `
-[00:02.05] Deus é quem sabe
-[00:06.51] 'Tá escrito
-[00:08.69] Clareou ô ô ô
-[00:17.60] Clareou ô ô ô
-[00:25.75] A vida é pra quem sabe viver
-[00:29.93] Procure aprender a arte
-[00:33.99] Pra quando apanhar não se abater
-[00:38.33] Ganhar e perder faz parte
-[00:43.60] Levante a cabeça, amigo
-[00:46.18] A vida não é tão ruim
-[00:47.46] No mundo a gente perde
-[00:49.68] Mas nem sempre o jogo é assim
-[00:51.75] Pra tudo tem um jeito
-[00:53.84] E se não teve jeito
-[00:56.29] Ainda não chegou ao fim
-[00:59.74] Mantenha a fé na crença
-[01:02.75] Se a ciência não curar
-[01:04.77] Pois se não tem remédio
-[01:07.08] Então remediado está
-[01:08.86] Não é um perdedor
-[01:11.03] Quem sabe a dor de uma derrota enfrentar
-[01:15.45] E a quem Deus prometeu, jamais faltou
-[01:21.54] Na hora certa o bom Deus dará
-[01:27.39] Deus é maior
-[01:28.68] Maior é Deus
-[01:30.68] Quem 'tá com Ele
-[01:31.28] Nunca está só
-[01:33.81] O que seria do mundo sem Ele?
-[01:35.91] Deus é maior
-[01:37.27] Maior é Deus
-[01:38.63] Quem 'tá com Ele
-[01:39.86] Nunca está só
-[01:41.95] O que seria do mundo sem Ele?
-[01:44.42] Chega de chorar
-[01:46.03] Você já sofreu demais, agora chega
-[01:50.13] Chega de achar que tudo se acabou
-[01:53.88] Pode a dor uma noite durar
-[01:59.15] Mas um novo dia sempre vai raiar
-[02:03.88] E quando menos esperar, clareou
-[02:07.36] Clareou ô ô ô
-[02:14.53] Clareou ô ô ô
-[02:23.95] A vida é pra quem sabe viver
-[02:27.68] Procure aprender a arte
-[02:32.40] Pra quando apanhar não se abater
-[02:35.83] Ganhar e perder faz parte
-[02:41.26] Deus é maior
-[02:42.84] Maior é Deus
-[02:44.51] Quem 'tá com Ele
-[02:45.56] Nunca está só
-[02:46.90] O que seria do mundo sem Ele?
-[02:49.46] Deus é maior
-[02:51.32] Maior é Deus
-[02:52.92] Quem 'tá com Ele
-[02:54.04] Nunca está só
-[02:55.92] O que seria do mundo sem Ele?
-[02:59.00] Chega de chorar
-[03:00.99] Você já sofreu demais, agora chega
-[03:05.80] Chega de achar que tudo acabou
-[03:09.09] Pode a dor uma noite durar
-[03:12.59] Mas um novo dia sempre vai raiar
-[03:18.30] E quando menos esperar
-[03:21.15] Clareou ô ô ô
-[03:29.67] Clareou ô ô ô
-[03:37.26] Clareou ô ô ô
-[03:41.05] Eu acho que a fé 'tá no coração de cada um
-[03:43.52] Cada um com a sua fé
-[03:45.28] Mas sempre com Deus lá em cima
-[03:47.41] Sem Deus nada acontece
-[03:50.91] É o nosso Pai maior
-[03:53.09] É assim que vai clarear`
-}];
+    title: "-",
+    file: "",
+    lyrics: ``
+}]
 let song = null;
 const player = new Player();
 
@@ -299,12 +71,10 @@ function multiplayerMode() {
         </div>`;
 
         main.querySelector(".box-player").classList.add("multiplayer");
-        
 
-        
         main.innerHTML += `
         <div class="box-player multiplayer toOpen" id="player2">
-            <div class="points minus">+ 50</div>
+            <div class="points" data-player="2">0</div>
             <h2>${song.title}</h2>
             <div id="content">
                 ${player.liricle.data.lines.map((line, index) => `<div class='verse' id='verse-1-${index}'>${line.text}</div>`).join('')}
@@ -403,6 +173,12 @@ async function gerarGabaritoDoAudioObject(audioInstance) {
   const gabarito = extrairGabaritoPitch(decodedAudio, 50);
 
   console.log("Gabarito gerado com sucesso!", gabarito);
+  if(!gabarito) openModal(`<h3>Oops...</h3>
+    parece que o gabarito não foi gerado... oque deseja fazer?
+    
+    <div class="button" onclick="window.location.reload()">reiniciar player</div>
+    <div class="button another" onclick="gerarGabaritoDoAudioObject(this.audio) \n closeModal()">tentar gerar de novo</div>
+    `)
   return gabarito;
 }
 
@@ -480,61 +256,60 @@ function collectInfos(info) {
 
     case 4:
     case 5: {
-      if(!song) song = songs[info];
-      else player.players[0].micId = info;
-      if(player.preferences.gameType == "multiplayer" && !Array.isArray(player.players)) player.players = [{
-      player: 1,
-      micId: null,
-      points: 0
-    }, {
-      player: 2,
-      micId: null,
-      points: 0
-    }];
-        (async()=>{
-    await navigator.mediaDevices.getUserMedia({ audio: true });
+    if (!song) song = songs[info];
+    else player.players[0].micId = info;
 
-    const devices = await navigator.mediaDevices.enumerateDevices();
+    if (!Array.isArray(player.players) || player.players.length === 0) {
+        const configs = player.preferences.gameType === "multiplayer"
+            ? [{ player: 1, micId: null, points: 0 }, { player: 2, micId: null, points: 0 }]
+            : [{ player: 1, micId: null, points: 0 }];
+        player.setPlayers(configs);
+    }
 
-    const microfones = devices.filter(device => device.kind === 'audioinput');
+    (async () => {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const microfones = devices.filter(device => device.kind === 'audioinput');
 
-    const listaFormatada = microfones.map((mic, index) => ({
-      id: mic.deviceId, 
-      nome: mic.label || `Microfone ${index + 1}`,
-      disponivel: player.players?.find(h=>h.micId == mic.deviceId)? false : true
-    }));
+        const listaFormatada = microfones.map((mic, index) => ({
+            id: mic.deviceId,
+            nome: mic.label || `Microfone ${index + 1}`,
+            disponivel: player.players?.find(h => h.micId == mic.deviceId) ? false : true
+        }));
 
         openModal(`
         <h3 style="margin: 2px">Como escuto</h3>
-        ${player.players[0].micId? "qual microfone o segundo jogador vai jogar?" : "qual microfone você vai usar?"}
-        ${listaFormatada.map(x=>
-            x.disponivel?
-            `
-            <div class="mic-box" onclick="collectInfos('${x.id}')"><i class='icon-mic'></i> ${x.nome}</div>
-            ` : ""
+        ${player.players[0].micId ? "qual microfone o segundo jogador vai jogar?" : "qual microfone você vai usar?"}
+        ${listaFormatada.map(x =>
+            x.disponivel ? `<div class="mic-box" onclick="collectInfos('${x.id}')"><i class='icon-mic'></i> ${x.nome}</div>` : ""
         ).join(" ")}
-        `)
-        })();
-        
-        break;
-    }
-    case 6: 
-    player.players[1].micId = info;
-        openModal(`
-        <h3 style="margin: 2px">Tudo Pronto!</h3>
-        Antes de você cantar... vamos gerar o gabarito das notas....
-        
-        `)
+        `);
+    })();
 
-        player.mic.setDevice(player.players[0].micId);
-
-        player.init();
-
+    if(steps == 4 && player.preferences.gameType == "singleplayer") steps = 5; 
     break;
+}
 
-        }
+case 6:
+
+    if(player.preferences.gameType == "multiplayer") {
+    player.players[1].micId = info;
+    player.assignMic(0, player.players[0].micId);
+    player.assignMic(1, player.players[1].micId);
+    } else {
+        player.players[0].micId = info;
+    }
+
+    openModal(`
+    <h3 style="margin: 2px">Tudo Pronto!</h3>
+    Antes de você cantar... vamos gerar o gabarito das notas....
+    `);
+
+    player.init(); // linha órfã "player.mic.setDevice(...)" removida
+    break;
+    }
+
     steps = steps + 1;
-
 }
 
 function morePoints(array, atributo) {
@@ -545,117 +320,160 @@ function morePoints(array, atributo) {
   });
 }
 
-
 function finish() {
+    if (player.preferences.gameType === "multiplayer") {
+        finishMultiplayer();
+    } else {
+        finishSingleplayer();
+    }
+}
+
+function finishSingleplayer() {
     const finishScreen = document.getElementsByClassName("finish-screen")[0];
     const user = document.getElementsByClassName("user");
 
     finishScreen.classList.add("show");
-
     document.body.style.overflow = "hidden";
 
-    setTimeout(()=>{
-        finishScreen.style.background="var(--background)"
+    setTimeout(() => {
+        finishScreen.style.background = "var(--background)";
 
-        user[0].querySelector("img").style.transform = "scale(2.30)"
-        user[0].style.top = "50%"
-        user[0].style.right = "65%"
-        
-        user[1].querySelector("img").style.transform = "scale(2.30)"
-        user[1].style.top = "50%"
-        user[1].style.right = "35%"
+        user[0].querySelector("img").style.transform = "scale(2.30)";
+        user[0].style.top = "50%";
+        user[0].style.right = "50%"; // centralizado, sem par pra dividir o espaço
+
+        const userStatus = user[0].querySelector(".status");
+        userStatus.classList.add('big');
+
+        for (let i = -1; i <= player.players[0].points; i++) {
+            setTimeout(() => {
+                if (i > 500) {
+                    userStatus.classList.add("points-up");
+                    userStatus.classList.contains("points-minus") ?
+                        userStatus.classList.remove("points-minus") : "";
+                } else if (i > 100) {
+                    userStatus.classList.add("points-minus");
+                    userStatus.classList.contains("points-down") ?
+                        userStatus.classList.remove("points-down") : "";
+                } else {
+                    userStatus.classList.add("points-down");
+                }
+                userStatus.innerHTML = i;
+
+                if (i >= player.players[0].points) {
+                    userStatus.classList.add("finish");
+                    userStatus.classList.remove('big');
+                }
+            }, i * 10);
+        }
+
+        // etapa final: dá destaque ao avatar único, sem comparação com ninguém
+        setTimeout(() => {
+            user[0].querySelector("img").style.transform = "scale(5)";
+        }, player.players[0].points * 10 + 200);
+
+    }, 800);
+}
+
+// a função original, renomeada, cuidando só do caso multiplayer
+function finishMultiplayer() {
+    const finishScreen = document.getElementsByClassName("finish-screen")[0];
+    const user = document.getElementsByClassName("user");
+
+    finishScreen.classList.add("show");
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+        finishScreen.style.background = "var(--background)";
+
+        user[0].querySelector("img").style.transform = "scale(2.30)";
+        user[0].style.top = "50%";
+        user[0].style.right = "65%";
+
+        user[1].querySelector("img").style.transform = "scale(2.30)";
+        user[1].style.top = "50%";
+        user[1].style.right = "35%";
 
         const userStatus = user[0].querySelector(".status");
         const userStatus2 = user[1].querySelector(".status");
-        
-        userStatus.classList.add('big')
-        userStatus2.classList.add('big')
+
+        userStatus.classList.add('big');
+        userStatus2.classList.add('big');
 
         for (let i = -1; i <= player.players[0].points; i++) {
-            
-
             setTimeout(() => {
-            if(i > 500) {
-                userStatus.classList.add("points-up")
-                userStatus.classList.contains("points-minus")? 
-                userStatus.classList.remove("points-minus") :
-                "";
-                
-            } else if(i > 100) {
-                userStatus.classList.add("points-minus")
-                
-                userStatus.classList.contains("points-down")? 
-                userStatus.classList.remove("points-down") :
-                "";
+                if (i > 500) {
+                    userStatus.classList.add("points-up");
+                    userStatus.classList.contains("points-minus") ?
+                        userStatus.classList.remove("points-minus") : "";
+                } else if (i > 100) {
+                    userStatus.classList.add("points-minus");
+                    userStatus.classList.contains("points-down") ?
+                        userStatus.classList.remove("points-down") : "";
+                } else userStatus.classList.add("points-down");
+                userStatus.innerHTML = i;
 
-            } else userStatus.classList.add("points-down")
-            userStatus.innerHTML = i;
-
-            if(i >= player.players[0].points) {
-                userStatus.classList.add("finish")
-                userStatus.classList.remove('big')
-            }
-
-    }, i * 10); 
+                if (i >= player.players[0].points) {
+                    userStatus.classList.add("finish");
+                    userStatus.classList.remove('big');
+                }
+            }, i * 10);
         }
 
         for (let i = -1; i <= player.players[1].points; i++) {
             setTimeout(() => {
-            if(i > 500) {
-                userStatus2.classList.add("points-up")
-                userStatus2.classList.contains("points-minus")? 
-                userStatus2.classList.remove("points-minus") :
-                "";
-                
-            } else if(i > 100) {
-                userStatus2.classList.add("points-minus")
-                
-                userStatus2.classList.contains("points-down")? 
-                userStatus2.classList.remove("points-down") :
-                "";
+                if (i > 500) {
+                    userStatus2.classList.add("points-up");
+                    userStatus2.classList.contains("points-minus") ?
+                        userStatus2.classList.remove("points-minus") : "";
+                } else if (i > 100) {
+                    userStatus2.classList.add("points-minus");
+                    userStatus2.classList.contains("points-down") ?
+                        userStatus2.classList.remove("points-down") : "";
+                } else userStatus2.classList.add("points-down");
+                userStatus2.innerHTML = i;
 
-            } else userStatus2.classList.add("points-down")
-            userStatus2.innerHTML = i;
-
-            if(i >= player.players[1].points) {
-                userStatus2.classList.add("finish")
-                userStatus2.classList.remove('big')
-            }
-
-    }, i * 10); 
+                if (i >= player.players[1].points) {
+                    userStatus2.classList.add("finish");
+                    userStatus2.classList.remove('big');
+                }
+            }, i * 10);
         }
 
-
-        setTimeout(()=>{
+        setTimeout(() => {
             const userMorePoints = morePoints(player.players, "points");
-        
-            user[userMorePoints.player - 1].querySelector("img").style.transform = "scale(5)"
-            user[userMorePoints.player - 1].style.right = "50%"
 
-            const multiplayerPosition = 
-                userMorePoints.player - 1 == 0? 
-                1 : 0;
+            user[userMorePoints.player - 1].querySelector("img").style.transform = "scale(5)";
+            user[userMorePoints.player - 1].style.right = "50%";
 
-            console.log(multiplayerPosition)
+            const multiplayerPosition = userMorePoints.player - 1 == 0 ? 1 : 0;
 
-            user[multiplayerPosition].style.right = "80%"
-            user[multiplayerPosition].querySelector("img").style.transform = "scale(1.50)"
-            user[multiplayerPosition].style.opacity = "0.5"
+            user[multiplayerPosition].style.right = "80%";
+            user[multiplayerPosition].querySelector("img").style.transform = "scale(1.50)";
+            user[multiplayerPosition].style.opacity = "0.5";
             user[multiplayerPosition].querySelector(".status")
-            .classList
-            .remove("finish")
-            .add("big");
-            
+                .classList.remove("finish").add("big");
 
-        }, player.players[0].points + player.players[1].points * 16)
+        }, player.players[0].points + player.players[1].points * 16);
 
     }, 800);
 }
 
 document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && modal.classList.contains('active')) {
-        closeModal();
-    }
+
+    console.log(event.key)
+    if  (event.key === 'r' && player.audio.src) {
+        player.play();
+        player.audio.src = ""
+        openModal(`
+          <h3>Calma ai!</h3>
+          você ainda está numa partida, quer mesmo sair?
+          
+          <div class="button" onclick="window.location.reload()">sim</div>
+          <div class="button another" onclick="player.audio.src = song.file \n closeModal()">não</div>
+          
+          `)
+    } else if(event.key === 'R') window.location.reload();
 });
 
 window.onload = () => {

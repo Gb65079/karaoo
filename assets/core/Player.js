@@ -1,12 +1,11 @@
-
 class Player {
   constructor() {
     this.audio = new Audio();
     this.liricle = new Liricle();
     this.preferences = {};
     this.players = {};
-
-    this.mic = new Mic();
+    this.mics = [];
+    this.gabarito = null;
 
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     this.audioContext = new AudioContextClass();
@@ -22,7 +21,28 @@ class Player {
     };
   }
 
+  // chame isso quando os jogadores forem definidos (fora da classe), antes de init()
+  setPlayers(playerConfigs) {
+    this.players = playerConfigs;
+    this.mics = this.players.map(() => new Mic(this.audioContext));
+  }
+
+  assignMic(playerIndex, deviceId) {
+    this.players[playerIndex].micId = deviceId;
+    this.mics[playerIndex].setDevice(deviceId);
+  }
+
+  async listInputDevices() {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.filter(d => d.kind === 'audioinput');
+  }
+
   init() {
+    if (!this.players.length) {
+      console.warn("Player.init() chamado sem jogadores definidos — chame setPlayers() antes.");
+    }
+
     this.audio.preload = "auto";
     this.audio.crossOrigin = "anonymous";
     this.audio.volume = 1;
@@ -35,7 +55,7 @@ class Player {
     document.getElementById('music-title').innerHTML = song.title;
     document.getElementById('music-box-title').innerHTML = song.title;
     this.liricle.offset = -100;
-    if(this.preferences.gameType == "multiplayer") multiplayerMode();
+    if (this.preferences.gameType == "multiplayer") multiplayerMode();
   }
 
   async play() {
@@ -68,109 +88,93 @@ class Player {
           img.style.display = 'block';
   }
   }
-
   loadEvents() {
     this.audio.onplay = () => {
       const playIcon = document.getElementById('play');
       if (playIcon) playIcon.innerHTML = '<i class="icon-pause"></i>';
     };
-
     this.audio.onpause = () => {
       const playIcon = document.getElementById('play');
       if (playIcon) playIcon.innerHTML = '<i class="icon-play_arrow"></i>';
     };
-
     this.audio.ontimeupdate = () => {
       this.liricle.sync(this.audio.currentTime, false);
-      document.getElementById('duration').innerHTML = this.calculateTotalValue(this.audio.currentTime) + ' / ' + this.calculateTotalValue(this.audio.duration);
+      document.getElementById('duration').innerHTML =
+        this.calculateTotalValue(this.audio.currentTime) + ' / ' + this.calculateTotalValue(this.audio.duration);
     };
+    this.audio.onerror = (e) => console.error("Erro crítico ao carregar a faixa de áudio:", e);
 
-    this.audio.onerror = (e) => {
-      console.error("Erro crítico ao carregar a faixa de áudio:", e);
-    };
-
-    this.audio.oncanplaythrough=async()=>{
-      this.linkThumb(song.title)
+    this.audio.oncanplaythrough = async () => {
+      this.linkThumb(song.title);
       document.getElementById('duration').innerHTML = '00:00 / ' + this.calculateTotalValue(this.audio.duration);
-      gerarGabaritoDoAudioObject(this.audio).then(gabarito => {
-      console.log(gabarito)
-      closeModal();
-});
-    
-    }
+      if (!this.gabarito) {
+        gerarGabaritoDoAudioObject(this.audio).then(gabarito => {
+          this.gabarito = gabarito;
+          closeModal();
+        });
+      }
+    };
 
-    let previousVerseText = "";
+    let previousVerseStart = null;
     const selectedLevel = "medium";
 
     this.audio.onended = async () => {
-      if (previousVerseText) {
-        const finalResult = await this.mic.stopAndSend(previousVerseText, selectedLevel);
-        
-        previousVerseText = "";
-
-
+      if (previousVerseStart !== null) {
+        const slice = (this.gabarito || []).filter(p => p.tempo >= previousVerseStart);
+        const results = await Promise.all(this.mics.map(mic => mic.stopAndSend(slice, selectedLevel)));
+        results.forEach((result, i) => {
+          this.players[i].points += result.points;
+        });
       }
       finish();
-      console.log(`Final Game Score: ${this.players.points}`);
+      console.log("Final scores:", this.players.map(p => `P${p.player}: ${p.points}`));
     };
-this.liricle.on('sync', async (line) => {
-  if (previousVerseText) {
-    // Pequena folga para o áudio alcançar a sincronização
-    await new Promise(r => setTimeout(r, 700));
-    
-    // Finaliza a gravação do verso anterior e obtém a pontuação
-    const result = await this.mic.stopAndSend(previousVerseText, selectedLevel);
 
-    console.log(`Verse Index: ${result.verseIndex}`);
-    console.log(`Expected: "${previousVerseText}"`);
-    console.log(`Sung: "${result.sungText}"`);
-    console.log(`Accuracy: ${result.percentage}%`);
-    console.log(`Points Awarded: ${result.points}`);
+    this.liricle.on('sync', async (line) => {
+      if (previousVerseStart !== null) {
+        await new Promise(r => setTimeout(r, 700)); // folga pra captura terminar
 
-    // --- ENCAIXE DA PONTUAÇÃO NA TELA ---
-    const pointsEl = document.getElementsByClassName("points")[0];
+        const slice = (this.gabarito || [])
+          .filter(p => p.tempo >= previousVerseStart && p.tempo < line.time)
+          .map(p => ({ tempo: p.tempo - previousVerseStart, nota: p.nota }));
+
+        // para e avalia todos os mics em paralelo
+        const results = await Promise.all(this.mics.map(mic => mic.stopAndSend(slice, selectedLevel)));
+
+        results.forEach((result, i) => {
+    this.players[i].points += result.points;
+    console.log(`P${this.players[i].player} — Verse ${result.verseIndex}: ${result.percentage}% (+${result.points})`);
+
+    const pointsEl = document.querySelector(`.points[data-player="${this.players[i].player}"]`);
     if (pointsEl) {
-      pointsEl.innerHTML = result.points;
-      
-      // Feedback visual se a pontuação foi baixa (<= 50) ou alta
-      if (result.points <= 50) {
-        pointsEl.classList.add("down");
-      } else {
-        pointsEl.classList.remove("down");
-      }
+        pointsEl.textContent = `+ ${result.points}`;
+        pointsEl.classList.toggle("up", result.points > 50);
+        pointsEl.classList.toggle("down", result.points <= 50);
     }
-
-    // Acumula os pontos no jogador atual
-    if (!this.players.points) this.players.points = 0;
-    this.players.points += result.points;
-  }
-
-  // Prepara o texto e inicia a gravação do novo verso
-  previousVerseText = line.text;
-  this.mic.startVerseRecording(line.index);
-
-  // Destaque visual do verso em execução no scroll da letra
-  const boxes = document.querySelectorAll(".box-player");
-  document.querySelectorAll(".verse.selected").forEach(el => el.classList.remove('selected'));
-
-  boxes.forEach((box, playerIndex) => {
-    const content = box.querySelector('.content') || box.querySelector('#content');
-    if (!content) return;
-
-    const targetVerse = content.querySelector(`#verse-${playerIndex}-${line.index}`);
-    if (targetVerse) {
-      targetVerse.classList.add('selected'); 
-      targetVerse.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-    }
-  });
 });
+      }
+
+      previousVerseStart = line.time;
+
+      // inicia a gravação em todos os mics ao mesmo tempo
+      this.mics.forEach(mic => mic.startVerseRecording(line.index));
+
+      // destaque visual do verso — igual ao que você já tinha
+      const boxes = document.querySelectorAll(".box-player");
+      document.querySelectorAll(".verse.selected").forEach(el => el.classList.remove('selected'));
+      boxes.forEach((box, playerIndex) => {
+        const content = box.querySelector('.content') || box.querySelector('#content');
+        if (!content) return;
+        const targetVerse = content.querySelector(`#verse-${playerIndex}-${line.index}`);
+        if (targetVerse) {
+          targetVerse.classList.add('selected');
+          targetVerse.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
+    });
 
     this.liricle.on("load", (data) => {
       const boxes = document.querySelectorAll('.box-player');
-
       boxes.forEach((box, playerIndex) => {
         const content = box.querySelector('.content') || box.querySelector('#content');
         if (content) {
@@ -182,6 +186,7 @@ this.liricle.on('sync', async (line) => {
     });
   }
 
+  
   createVoiceCancel() {
     this.voiceFilter.audioSource = this.audioContext.createMediaElementSource(this.audio);
     this.voiceFilter.splitter = this.audioContext.createChannelSplitter(2);
