@@ -159,6 +159,7 @@ function extrairGabaritoPitch(audioBuffer, intervaloMs = 100) { // 100ms é idea
 
 // 2. FUNÇÃO PRINCIPAL: Passa a sua instância do new Audio()
 async function gerarGabaritoDoAudioObject(audioInstance) {
+    try {
   console.log("Baixando e decodificando o áudio da URL:", audioInstance.src);
 
   // Pega a URL contida no audioInstance.src (ex: 'assets/musica.mp3' ou 'http://...')
@@ -180,6 +181,15 @@ async function gerarGabaritoDoAudioObject(audioInstance) {
     <div class="button another" onclick="gerarGabaritoDoAudioObject(this.audio) \n closeModal()">tentar gerar de novo</div>
     `)
   return gabarito;
+} catch(e) {
+    console.log(e)
+    openModal(`<h3>Oops...</h3>
+    parece que o gabarito não foi gerado... oque deseja fazer?
+    
+    <div class="button" onclick="window.location.reload()">reiniciar player</div>
+    <div class="button another" onclick="gerarGabaritoDoAudioObject(this.audio) \n closeModal()">tentar gerar de novo</div>
+    `)
+}
 }
 
 function openModal(content) {
@@ -199,6 +209,11 @@ function closeModal() {
 function collectInfos(info) {
     closeModal();
 
+    if(info == "dueto") {
+        steps = 3;
+        player.preferences.gameType = info;
+    }
+
     switch (steps) {
 
     case 0: openModal(`
@@ -206,6 +221,7 @@ function collectInfos(info) {
         você prefere cantar sozinho ou em grupo<br><br>
         <div class="button" onclick="collectInfos('multiplayer')">multiplayer</div>
         <div class="button another" onclick="collectInfos('singleplayer')">singleplayer</div>
+        <div class="button" onclick="collectInfos('dueto')">dueto</div>
         
         `)
     break;
@@ -286,7 +302,11 @@ function collectInfos(info) {
         `);
     })();
 
-    if(steps == 4 && player.preferences.gameType == "singleplayer") steps = 5; 
+    if(steps == 4 && (
+        player.preferences.gameType == "singleplayer" || 
+        player.preferences.gameType == "dueto" 
+    )
+ ) steps = 5; 
     break;
 }
 

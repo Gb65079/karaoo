@@ -131,7 +131,7 @@ class Player {
     };
 
     this.liricle.on('sync', async (line) => {
-      if (previousVerseStart !== null) {
+      if (previousVerseStart !== null && player.preferences.gamePoints) {
         await new Promise(r => setTimeout(r, 700)); // folga pra captura terminar
 
         const slice = (this.gabarito || [])
