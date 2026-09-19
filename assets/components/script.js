@@ -54,6 +54,7 @@ const songs = [{
     file: "",
     lyrics: ``
 }]
+
 let song = null;
 const player = new Player();
 
@@ -65,7 +66,7 @@ function multiplayerMode() {
         document.getElementsByTagName('header')[0]
         .innerHTML += `
         <div class="user connected" id="player2">
-            <img src="../images/user.png" alt="User">
+            <img src="../avatars/avatar${getAvatarRandom()}.png" alt="User">
             <div class="status">
             </div>
         </div>`;
@@ -496,6 +497,11 @@ document.addEventListener('keydown', (event) => {
     } else if(event.key === 'R') window.location.reload();
 });
 
+function getAvatarRandom() {
+  const indiceAleatorio = Math.floor(Math.random() * 7);
+  return indiceAleatorio;
+}
+
 window.onload = () => {
     openModal(`
         <h3 style="margin: 2px">Olá Jogador</h3>
@@ -503,4 +509,6 @@ window.onload = () => {
         <div class="button" onclick="collectInfos()">Prosseguir</div>
         
         `)
+
+    document.getElementsByClassName("user")[0].querySelector("img").src = "../avatars/avatar" + getAvatarRandom() + ".png";
 }
