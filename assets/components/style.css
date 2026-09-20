@@ -296,6 +296,7 @@ main {
     padding: 2px 6px;
     border-radius: 10px;
     background: #0a0a12;
+    opacity: 0;
     border: 1px solid var(--boxes);
     transition: var(--transition);
 }
@@ -304,12 +305,14 @@ main {
     transform: scale(2.8);
     bottom: 120px;
     right: 15px;
+    opacity: 1;
 }
 
 .user .status.finish {
     transform: scale(6);
     bottom: 230px;
     right: 15px;
+    opacity: 1;
     border: 0.5px solid var(--boxes);
 }
 

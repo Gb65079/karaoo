@@ -150,7 +150,10 @@ class Player {
         const results = await Promise.all(this.mics.map(mic => mic.stopAndSend(slice, selectedLevel)));
 
         results.forEach((result, i) => {
-    this.players[i].points += result.points;
+    if(this.players[i].points <= 1000) {
+    if(result.points < 50) this.players[i].points -= 25;
+    else this.players[i].points += result.points
+    }
     console.log(`P${this.players[i].player} — Verse ${result.verseIndex}: ${result.percentage}% (+${result.points})`);
 
     const pointsEl = document.querySelector(`.points[data-player="${this.players[i].player}"]`);

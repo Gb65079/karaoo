@@ -63,11 +63,15 @@ let steps = 0;
 
 function multiplayerMode() {
         const main = document.getElementsByTagName('main')[0]
+
+        let multiplayerAvatar = getAvatarRandom();
         
+        if(document.querySelector(".user img").src.includes("avatar" + multiplayerAvatar + ".png")) multiplayerAvatar = getAvatarRandom()
+
         document.getElementsByTagName('header')[0]
         .innerHTML += `
         <div class="user connected" id="player2">
-            <img src="../avatars/avatar${getAvatarRandom()}.png" alt="User">
+            <img src="../avatars/avatar${multiplayerAvatar}.png" alt="User">
             <div class="status">
             </div>
         </div>`;
@@ -383,8 +387,8 @@ function unlockButton() {
     if(
         playerFirstName.value.length > 0 && 
         playerSecondName?.value.length > 0 && 
-        playerFirstName.value.length < 200 && 
-        playerSecondName.value.length < 200 && 
+        playerFirstName.value.length < 15 && 
+        playerSecondName.value.length < 15 && 
         ![" ", "."].includes(playerFirstName?.value) && 
         ![" ", "."].includes(playerSecondName?.value) &&
         player.preferences.gameType == "multiplayer") {
@@ -400,7 +404,7 @@ function unlockButton() {
             player.preferences.gameType == "singleplayer" || 
             player.preferences.gameType == "dueto"
         ) && 
-        playerFirstName.value.length < 200 &&
+        playerFirstName.value.length < 15 &&
         ![" ", "."].includes(playerFirstName?.value)
 
     ) {
