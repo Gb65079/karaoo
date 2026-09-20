@@ -3,8 +3,9 @@ class Player {
     this.audio = new Audio();
     this.liricle = new Liricle();
     this.preferences = {};
-    this.players = {};
+    this.players = [];
     this.mics = [];
+    this.ready = false;
     this.gabarito = null;
 
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -106,9 +107,16 @@ class Player {
 
     this.audio.oncanplaythrough = async () => {
       this.linkThumb(song.title);
+      this.ready = true;
       document.getElementById('duration').innerHTML = '00:00 / ' + this.calculateTotalValue(this.audio.duration);
       if (!this.gabarito) {
         gerarGabaritoDoAudioObject(this.audio).then(gabarito => {
+          if(gabarito == "err") return openModal(`<h3>Oops...</h3>
+    parece que o gabarito não foi gerado... oque deseja fazer?
+    
+    <div class="button" onclick="window.location.reload()">reiniciar player</div>
+    <div class="button another" onclick="gerarGabaritoDoAudioObject(this.audio) \n closeModal()">tentar gerar de novo</div>
+    `)
           this.gabarito = gabarito;
           closeModal();
         });

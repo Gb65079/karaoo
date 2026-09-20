@@ -28,7 +28,6 @@
 
 body {
     background-color: var(--background);
-    /* Fundo estilo Palco / Luzes de Karaokê */
     background-image: 
         radial-gradient(circle at 50% 10%, rgba(255, 0, 127, 0.18) 0%, transparent 60%),
         radial-gradient(circle at 10% 80%, rgba(0, 243, 255, 0.12) 0%, transparent 50%),
@@ -42,7 +41,6 @@ body {
     overflow-x: hidden;
 }
 
-/* Informações da Música */
 .song {
     display: flex;
     justify-content: center;
@@ -310,9 +308,22 @@ main {
 
 .user .status.finish {
     transform: scale(6);
-    bottom: 200px;
+    bottom: 230px;
     right: 15px;
     border: 0.5px solid var(--boxes);
+}
+
+.user .username {
+    position: absolute;
+    bottom: -160px;
+    left: -150px;
+    width: 350px;
+    text-align: center;
+    transform: scale(0.2);
+    opacity: 0;
+    margin: 0;
+    animation: .2s showName linear;
+    animation-fill-mode: forwards;
 }
 
 .user .status.points-up { color: var(--color-perfect); }
@@ -473,6 +484,11 @@ input:checked + .slider:before {
     color: var(--background);
 }
 
+.button.disabled {
+    background: rgba(255, 184, 219, 0.921);
+    opacity: 0.5;
+}
+
 .music-box {
     padding: 10px;
     border-radius: 15px;
@@ -519,6 +535,46 @@ input:checked + .slider:before {
     opacity: 1;
 }
 
+.textarea {
+    padding: 20px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255, 0, 127, 0.3);
+    border-radius: 15px;
+    margin: 10px;
+}
+
+.textarea span {
+    position: absolute;
+    left: 10px;
+    top: -15px;
+    padding: 5px;
+    background: var(--background);
+}
+
+.textarea i {
+    color: rgba(255, 0, 128, 0.596);
+}
+
+.textarea input {
+    background: none;
+    border: none;
+    width: 400px;
+    outline: none;
+    color: #fff
+}
+
+.textarea input::placeholder {
+    color: rgba(255, 184, 219, 0.921);
+    opacity: 0.5;
+}
+
+.icon-user:before {
+  content: "\ebae";
+}
+
 /* Animações */
 @keyframes flutuate {
     0%, 100% { transform: translateY(0); }
@@ -528,4 +584,11 @@ input:checked + .slider:before {
 @keyframes toOpen {
     0% { transform: scale(0.8); opacity: 0; }
     100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes showName {
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }

@@ -56,6 +56,7 @@ const songs = [{
 }]
 
 let song = null;
+let name1, name2;
 const player = new Player();
 
 let steps = 0;
@@ -183,13 +184,7 @@ async function gerarGabaritoDoAudioObject(audioInstance) {
     `)
   return gabarito;
 } catch(e) {
-    console.log(e)
-    openModal(`<h3>Oops...</h3>
-    parece que o gabarito não foi gerado... oque deseja fazer?
-    
-    <div class="button" onclick="window.location.reload()">reiniciar player</div>
-    <div class="button another" onclick="gerarGabaritoDoAudioObject(this.audio) \n closeModal()">tentar gerar de novo</div>
-    `)
+    return "err"
 }
 }
 
@@ -251,7 +246,34 @@ function collectInfos(info) {
 
     break;
 
-    case 3: {
+
+    case 3: 
+    
+        player.preferences.gameCaption = info;
+        openModal(`
+        <h3 style="margin: 2px">Jogador</h3>
+        quero saber: quem vai jogar!<br><br>
+        <div class="textarea" style="margin-bottom: 15px">
+        <span>Player 1</span>
+        <i class="icon-user"></i>
+        <input type="text" oninput="unlockButton()" id="player-1-name" placeholder="seu nome...">
+        </div>
+        ${
+            player.preferences.gameType == "multiplayer"? `
+        <div class="textarea">
+        <span>Player 2</span>
+        <i class="icon-user"></i>
+        <input type="text" oninput="unlockButton()" id="player-2-name" placeholder="seu nome...">
+        </div>` : ""
+        }
+        <br>
+        <div class="button disabled">prosseguir</div>
+        
+        `)
+
+    break;
+
+    case 4: {
         let songsmapped;
 
         songs.map((x, i = 0)=>{
@@ -261,7 +283,6 @@ function collectInfos(info) {
             `
              i++;
         }).join(" ")
-        player.preferences.gameCaption = info;
         openModal(`
         <h3 style="margin: 2px">Música</h3>
         Qual música você quer cantar?
@@ -271,15 +292,15 @@ function collectInfos(info) {
     break;
     }
 
-    case 4:
-    case 5: {
+    case 5:
+    case 6: {
     if (!song) song = songs[info];
     else player.players[0].micId = info;
 
     if (!Array.isArray(player.players) || player.players.length === 0) {
         const configs = player.preferences.gameType === "multiplayer"
-            ? [{ player: 1, micId: null, points: 0 }, { player: 2, micId: null, points: 0 }]
-            : [{ player: 1, micId: null, points: 0 }];
+            ? [{ player: 1, name: name1, micId: null, points: 0 }, { player: 2, name: name2, micId: null, points: 0 }]
+            : [{ player: 1, name: name1, micId: null, points: 0 }];
         player.setPlayers(configs);
     }
 
@@ -303,15 +324,15 @@ function collectInfos(info) {
         `);
     })();
 
-    if(steps == 4 && (
+    if(steps == 5 && (
         player.preferences.gameType == "singleplayer" || 
         player.preferences.gameType == "dueto" 
     )
- ) steps = 5; 
+ ) steps = 6; 
     break;
 }
 
-case 6:
+case 7:
 
     if(player.preferences.gameType == "multiplayer") {
     player.players[1].micId = info;
@@ -341,7 +362,65 @@ function morePoints(array, atributo) {
   });
 }
 
+function unlinkAudioAssets(audio) {
+    player.audio.onplay = null;
+    player.audio.onpause = null;
+    player.audio.onended = null;
+    player.audio.src = audio;
+}
+
+function unlockButton() {
+    const [
+        playerFirstName,
+        playerSecondName
+    ] = [
+        document.getElementById('player-1-name'),
+        document.getElementById('player-2-name')
+    ];
+
+    const button = document.getElementsByClassName("button")[0];
+
+    if(
+        playerFirstName.value.length > 0 && 
+        playerSecondName?.value.length > 0 && 
+        playerFirstName.value.length < 200 && 
+        playerSecondName.value.length < 200 && 
+        ![" ", "."].includes(playerFirstName?.value) && 
+        ![" ", "."].includes(playerSecondName?.value) &&
+        player.preferences.gameType == "multiplayer") {
+
+        name1 = playerFirstName.value;
+        name2 = playerSecondName.value;
+
+        button.setAttribute("onclick", `collectInfos()`)
+        button.classList.remove("disabled");
+    } else if (
+        playerFirstName.value.length > 0 && 
+        (
+            player.preferences.gameType == "singleplayer" || 
+            player.preferences.gameType == "dueto"
+        ) && 
+        playerFirstName.value.length < 200 &&
+        ![" ", "."].includes(playerFirstName?.value)
+
+    ) {
+        name1 = playerFirstName.value;
+
+        button.setAttribute("onclick", `collectInfos()`)
+        button.classList.remove("disabled");
+    } else {
+        
+        name1 = null
+        name2 = null
+
+        button.removeAttribute("onclick")
+        button.classList.add("disabled");
+    }
+}
+
 function finish() {
+    unlinkAudioAssets("../songs/assets3-waiting.mp3");
+    player.audio.play();
     if (player.preferences.gameType === "multiplayer") {
         finishMultiplayer();
     } else {
@@ -391,6 +470,10 @@ function finishSingleplayer() {
         // etapa final: dá destaque ao avatar único, sem comparação com ninguém
         setTimeout(() => {
             user[0].querySelector("img").style.transform = "scale(5)";
+            user[0].innerHTML += `<h1 class='username'>${player.players[0].name}</h1>`
+            unlinkAudioAssets("../songs/assets2-finish.mp3");
+            player.audio.play();
+
         }, player.players[0].points * 10 + 200);
 
     }, 800);
@@ -472,8 +555,16 @@ function finishMultiplayer() {
             user[multiplayerPosition].style.right = "80%";
             user[multiplayerPosition].querySelector("img").style.transform = "scale(1.50)";
             user[multiplayerPosition].style.opacity = "0.5";
-            user[multiplayerPosition].querySelector(".status")
-                .classList.remove("finish").add("big");
+
+            const userClasslist = user[multiplayerPosition].querySelector(".status")
+                .classList;
+            userClasslist.remove("finish");
+            userClasslist.add("big");
+            unlinkAudioAssets("../songs/assets2-finish.mp3");
+            player.audio.play();
+
+
+            user[userMorePoints.player - 1].innerHTML += `<h1 class='username'>${userMorePoints.name}</h1>`
 
         }, player.players[0].points + player.players[1].points * 16);
 
@@ -482,7 +573,7 @@ function finishMultiplayer() {
 
 document.addEventListener('keydown', (event) => {
 
-    console.log(event.key)
+    if  (!player.ready) return;
     if  (event.key === 'r' && player.audio.src) {
         player.play();
         player.audio.src = ""
@@ -498,7 +589,8 @@ document.addEventListener('keydown', (event) => {
 });
 
 function getAvatarRandom() {
-  const indiceAleatorio = Math.floor(Math.random() * 7);
+  const indiceAleatorio = Math.floor(Math.random() * 8);
+  if(indiceAleatorio == 0 || indiceAleatorio < 0) return getAvatarRandom();
   return indiceAleatorio;
 }
 
@@ -509,6 +601,16 @@ window.onload = () => {
         <div class="button" onclick="collectInfos()">Prosseguir</div>
         
         `)
+
+        player.audio.src = "../songs/assets1-landing.mp3";
+        player.audio.play()
+        player.audio.volume = 0.04;
+        player.audio.onended = () => {
+            if(player.audio.src.includes("songs/assets1-landing.mp3")) setTimeout(()=>{
+                player.audio.currentTime = 0;
+                player.audio.play();
+            },500);
+        }
 
     document.getElementsByClassName("user")[0].querySelector("img").src = "../avatars/avatar" + getAvatarRandom() + ".png";
 }
