@@ -17,7 +17,6 @@ function createWindow () {
     }
   });
 
-  // 1. Remove o menu nativo da aplicação
   Menu.setApplicationMenu(null);
 
   win.loadFile('assets/components/index.html')

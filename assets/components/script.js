@@ -88,110 +88,6 @@ function multiplayerMode() {
         </div>`;
     }
 
-function autoCorrelate(buffer, sampleRate) {
-  const SIZE = buffer.length;
-  
-  // 1. Calcula RMS
-  let sumOfSquares = 0;
-  for (let i = 0; i < SIZE; i++) {
-    const val = buffer[i];
-    sumOfSquares += val * val;
-  }
-  const rms = Math.sqrt(sumOfSquares / SIZE);
-  
-  // REDUZIDO: de 0.01 para 0.001 para não descartar o MP3
-  if (rms < 0.001) return null;
-
-  const minFrequency = 70;   // C2 (nota bem grave)
-  const maxFrequency = 1200; // D6 (nota aguda)
-  
-  const maxLag = Math.floor(sampleRate / minFrequency);
-  const minLag = Math.floor(sampleRate / maxFrequency);
-
-  let bestLag = -1;
-  let bestCorrelation = 0;
-
-  for (let lag = minLag; lag <= maxLag; lag++) {
-    let correlation = 0;
-    for (let i = 0; i < SIZE - lag; i++) {
-      correlation += buffer[i] * buffer[i + lag];
-    }
-    correlation = correlation / (SIZE - lag);
-
-    if (correlation > bestCorrelation) {
-      bestCorrelation = correlation;
-      bestLag = lag;
-    }
-  }
-
-  // REDUZIDO: de 0.3 para 0.1 (permite capturar a frequência mesmo com instrumentos de fundo)
-  if (bestCorrelation > 0.1 && bestLag !== -1) {
-    return sampleRate / bestLag;
-  }
-
-  return null;
-}
-
-function extrairGabaritoPitch(audioBuffer, intervaloMs = 100) { // 100ms é ideal para gabarito leve
-  const sampleRate = audioBuffer.sampleRate;
-  const channelData = audioBuffer.getChannelData(0); // Canal esquerdo/mono
-  const samplesPorIntervalo = Math.floor((sampleRate * intervaloMs) / 1000);
-  const windowSize = 2048; 
-  const gabarito = [];
-
-  for (let i = 0; i < channelData.length - windowSize; i += samplesPorIntervalo) {
-    const tempoSegundos = parseFloat((i / sampleRate).toFixed(2));
-    
-    // Pega o trecho do buffer
-    const slice = channelData.subarray(i, i + windowSize);
-
-    const pitchHz = autoCorrelate(slice, sampleRate);
-    
-    if (pitchHz) {
-      const notaMidi = Math.round(12 * Math.log2(pitchHz / 440) + 69);
-      
-      // Filtra notas fora do alcance vocal (ex: 36 a 84 no MIDI)
-      if (notaMidi >= 36 && notaMidi <= 84) {
-        gabarito.push({
-          tempo: tempoSegundos,
-          nota: notaMidi
-        });
-      }
-    }
-  }
-
-  return gabarito;
-}
-
-// 2. FUNÇÃO PRINCIPAL: Passa a sua instância do new Audio()
-async function gerarGabaritoDoAudioObject(audioInstance) {
-    try {
-  console.log("Baixando e decodificando o áudio da URL:", audioInstance.src);
-
-  // Pega a URL contida no audioInstance.src (ex: 'assets/musica.mp3' ou 'http://...')
-  const response = await fetch(audioInstance.src);
-  const arrayBuffer = await response.arrayBuffer();
-
-  // Decodifica os dados de áudio na memória
-  const audioCtx = new AudioContext();
-  const decodedAudio = await audioCtx.decodeAudioData(arrayBuffer);
-
-  // Gera o gabarito (a cada 50ms)
-  const gabarito = extrairGabaritoPitch(decodedAudio, 50);
-
-  console.log("Gabarito gerado com sucesso!", gabarito);
-  if(!gabarito) openModal(`<h3>Oops...</h3>
-    parece que o gabarito não foi gerado... oque deseja fazer?
-    
-    <div class="button" onclick="window.location.reload()">reiniciar player</div>
-    <div class="button another" onclick="gerarGabaritoDoAudioObject(this.audio) \n closeModal()">tentar gerar de novo</div>
-    `)
-  return gabarito;
-} catch(e) {
-    return "err"
-}
-}
-
 function openModal(content) {
     const modal = document.querySelector('#modal');
     modal.classList.add('active');
@@ -299,7 +195,7 @@ function collectInfos(info) {
     case 5:
     case 6: {
     if (!song) song = songs[info];
-    else player.players[0].micId = info;
+    else player.assignMic(0, info);
 
     if (!Array.isArray(player.players) || player.players.length === 0) {
         const configs = player.preferences.gameType === "multiplayer"
@@ -343,7 +239,7 @@ case 7:
     player.assignMic(0, player.players[0].micId);
     player.assignMic(1, player.players[1].micId);
     } else {
-        player.players[0].micId = info;
+        player.assignMic(0, info);
     }
 
     openModal(`
@@ -351,7 +247,14 @@ case 7:
     Antes de você cantar... vamos gerar o gabarito das notas....
     `);
 
-    player.init(); // linha órfã "player.mic.setDevice(...)" removida
+    const monitorVolume = 0.7 / Math.max(player.mics.length, 1);
+    Promise.all(player.mics.map(mic => mic.startMonitoring(player.preferences.gameCaption === true, monitorVolume)))
+        .then(() => player.init(song))
+        .catch(error => {
+            console.error("Erro ao iniciar os microfones:", error);
+            openModal(`<h3>Oops...</h3>
+            não foi possível iniciar os microfones selecionados.`);
+        });
     break;
     }
 
@@ -359,7 +262,7 @@ case 7:
 }
 
 function morePoints(array, atributo) {
-  if (!array || array.length === 0) return null; // Evita erros se o array estiver vazio
+    if (!array || array.length === 0) return null;
 
   return array.reduce((maior, atual) => {
     return atual[atributo] > maior[atributo] ? atual : maior;
@@ -370,6 +273,7 @@ function unlinkAudioAssets(audio) {
     player.audio.onplay = null;
     player.audio.onpause = null;
     player.audio.onended = null;
+    player.deactivateVoiceCancel();
     player.audio.src = audio;
 }
 
@@ -444,7 +348,7 @@ function finishSingleplayer() {
 
         user[0].querySelector("img").style.transform = "scale(2.30)";
         user[0].style.top = "50%";
-        user[0].style.right = "50%"; // centralizado, sem par pra dividir o espaço
+        user[0].style.right = "50%";
 
         const userStatus = user[0].querySelector(".status");
         userStatus.classList.add('big');
@@ -471,7 +375,6 @@ function finishSingleplayer() {
             }, i * 10);
         }
 
-        // etapa final: dá destaque ao avatar único, sem comparação com ninguém
         setTimeout(() => {
             user[0].querySelector("img").style.transform = "scale(5)";
             user[0].innerHTML += `<h1 class='username'>${player.players[0].name}</h1>`
@@ -483,7 +386,6 @@ function finishSingleplayer() {
     }, 800);
 }
 
-// a função original, renomeada, cuidando só do caso multiplayer
 function finishMultiplayer() {
     const finishScreen = document.getElementsByClassName("finish-screen")[0];
     const user = document.getElementsByClassName("user");

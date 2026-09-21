@@ -46,17 +46,15 @@
 
         <div class="option">
            <label class="switch">
-  <input type="checkbox">
+    <input type="checkbox" onchange="this.checked ? player.activateVoiceCancel() : player.deactivateVoiceCancel()">
   <span class="slider"></span>
 </label>  Cancelar Voz
             <p>cancela a voz do cantor na música</p>
         </div>
 
     </div>
-    <!-- Fundo escuro do Modal (Overlay) -->
 <div id="modal" class="modal-overlay">
     
-    <!-- Caixa do Conteúdo -->
     <div class="modal-container">
         <button class="close-modal-btn">&times;</button>
         <h2>Título do Modal</h2>

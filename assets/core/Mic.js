@@ -1,221 +1,212 @@
 class Mic {
-  constructor(sharedAudioContext = null) {
+  constructor(audioContext, outputNode = audioContext?.destination) {
+    if (!audioContext) throw new Error('Mic precisa receber o AudioContext do Player.');
+    this.audioContext = audioContext;
+    this.outputNode = outputNode;
     this.mediaRecorder = null;
+    this.stream = null;
     this.audioChunks = [];
-    this.isRecording = false;
+    this.vocalPitches = [];
     this.currentVerseIndex = null;
     this.selectedDeviceId = null;
-
-    // mesmos limiares usados na extração do gabarito — antes estavam desalinhados
+    this.verseStartTime = 0;
+    this.isRecording = false;
+    this.monitorEnabled = false;
+    this.monitorVolume = 0.5;
+    this.monitorGain = null;
+    this.monitorFilter = null;
+    this.monitorCompressor = null;
+    this.micSourceNode = null;
+    this.analyser = null;
+    this.analysisFrame = null;
     this.silenceThreshold = 0.003;
     this.correlationThreshold = 0.1;
-
-    this.vocalPitches = []; // { tempo (relativo ao início do verso), nota }
-    this.verseStartTime = 0;
-
-    this.audioContext = sharedAudioContext || new (window.AudioContext || window.webkitAudioContext)();
-
-    // monitor de voz no speaker — desligado por padrão, só liga se o usuário permitir
-    this.monitorEnabled = false;
-    this.monitorGain = null;
-    this.micSourceNode = null;
-  }
-
-  async getDevices() {
-    await navigator.mediaDevices.getUserMedia({ audio: true });
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.filter(d => d.kind === 'audioinput');
   }
 
   setDevice(deviceId) {
     this.selectedDeviceId = deviceId;
   }
 
-  // chame isso a partir de um toggle/checkbox na UI, com o usuário decidindo explicitamente
-  setMonitor(enabled, volume = 0.5) {
-    this.monitorEnabled = enabled;
-    if (this.monitorGain) {
-      this.monitorGain.gain.value = enabled ? volume : 0;
-    }
-  }
-
   async startVerseRecording(verseIndex) {
+    await this.resumeContext();
+    this.stopAnalysis();
     this.currentVerseIndex = verseIndex;
     this.audioChunks = [];
     this.vocalPitches = [];
     this.verseStartTime = this.audioContext.currentTime;
 
+    try {
+      await this.ensureStream();
+      this.isRecording = true;
+      this.startAnalysis();
+      this.mediaRecorder = new MediaRecorder(this.stream);
+      this.mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) this.audioChunks.push(event.data);
+      };
+      this.mediaRecorder.start(50);
+    } catch (error) {
+      this.isRecording = false;
+      console.error('Erro ao acessar o microfone:', error);
+      if (typeof window.openModal === 'function') window.openModal('<h3>Oops...</h3>Não foi possível acessar o microfone.');
+    }
+  }
+
+  async resumeContext() {
+    if (this.audioContext.state === 'suspended') await this.audioContext.resume();
+  }
+
+  async startMonitoring(enabled = false, volume = this.monitorVolume) {
+    await this.resumeContext();
+    this.monitorEnabled = enabled;
+    this.monitorVolume = volume;
+    await this.ensureStream();
+    this.setMonitor(enabled, volume);
+  }
+
+  async ensureStream() {
+    if (this.stream && this.stream.active) return;
     const constraints = {
       audio: {
         ...(this.selectedDeviceId ? { deviceId: { exact: this.selectedDeviceId } } : {}),
         echoCancellation: true,
         noiseSuppression: true,
-        autoGainControl: true // ligado de novo — sem isso o sinal fica fraco demais pro limiar de RMS
+        autoGainControl: false
       }
     };
+    this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+    this.setupAudioAnalyser(this.stream);
+  }
 
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      this.setupAudioAnalyser(stream);
-
-      this.mediaRecorder = new MediaRecorder(stream);
-      this.mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) this.audioChunks.push(event.data);
-      };
-      this.mediaRecorder.start(50);
-      this.isRecording = true;
-    } catch (err) {
-      console.error("Erro ao acessar o microfone:", err);
-
-      openModal(`<h3>Ooops...</h3>
-        parece que o outro player está sem voz, essa partida não pode continuar...`);
-
-        player.play();
-        player.audio.src = "";
-
-        setTimeout(()=>window.location.reload(),1000);
-    }
+  setMonitor(enabled, volume = 0.5) {
+    this.monitorEnabled = enabled;
+    this.monitorVolume = volume;
+    if (!this.monitorGain) return;
+    this.monitorGain.gain.setValueAtTime(enabled ? volume : 0, this.audioContext.currentTime);
   }
 
   setupAudioAnalyser(stream) {
+    this.disconnectAudioNodes();
     this.micSourceNode = this.audioContext.createMediaStreamSource(stream);
     this.analyser = this.audioContext.createAnalyser();
     this.analyser.fftSize = 2048;
     this.micSourceNode.connect(this.analyser);
-
-    // saída opcional pro speaker — some com o volume em 0 até o usuário permitir via setMonitor
+    this.monitorFilter = this.audioContext.createBiquadFilter();
+    this.monitorFilter.type = 'highpass';
+    this.monitorFilter.frequency.value = 100;
+    this.monitorCompressor = this.audioContext.createDynamicsCompressor();
+    this.monitorCompressor.threshold.value = -30;
+    this.monitorCompressor.knee.value = 18;
+    this.monitorCompressor.ratio.value = 4;
+    this.monitorCompressor.attack.value = 0.003;
+    this.monitorCompressor.release.value = 0.2;
     this.monitorGain = this.audioContext.createGain();
-    this.monitorGain.gain.value = this.monitorEnabled ? 0.5 : 0;
-    this.micSourceNode.connect(this.monitorGain);
-    this.monitorGain.connect(this.audioContext.destination);
+    this.monitorGain.gain.setValueAtTime(this.monitorEnabled ? this.monitorVolume : 0, this.audioContext.currentTime);
+    this.micSourceNode.connect(this.monitorFilter);
+    this.monitorFilter.connect(this.monitorCompressor);
+    this.monitorCompressor.connect(this.monitorGain);
+    this.monitorGain.connect(this.outputNode);
+  }
 
+  startAnalysis() {
     const buffer = new Float32Array(this.analyser.fftSize);
-
     const processFrame = () => {
-      if (!this.isRecording) return;
-
+      if (!this.isRecording || !this.analyser) return;
       this.analyser.getFloatTimeDomainData(buffer);
-
-      let sum = 0;
-      for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
-      const rms = Math.sqrt(sum / buffer.length);
-
-      if (rms > this.silenceThreshold) {
-        const pitchHz = this.autoCorrelate(buffer, this.audioContext.sampleRate);
-        if (pitchHz) {
-          const midiNote = Math.round(12 * Math.log2(pitchHz / 440) + 69);
-          if (midiNote >= 36 && midiNote <= 85) {
-            this.vocalPitches.push({
-              tempo: parseFloat((this.audioContext.currentTime - this.verseStartTime).toFixed(2)),
-              nota: midiNote
-            });
-          }
+      const pitchHz = this.getPitch(buffer, this.audioContext.sampleRate);
+      if (pitchHz) {
+        const note = Math.round(12 * Math.log2(pitchHz / 440) + 69);
+        if (note >= 36 && note <= 85) {
+          this.vocalPitches.push({ tempo: Number((this.audioContext.currentTime - this.verseStartTime).toFixed(2)), nota: note });
         }
       }
-
-      requestAnimationFrame(processFrame);
+      this.analysisFrame = requestAnimationFrame(processFrame);
     };
-
     processFrame();
   }
 
-  // mesma lógica que você já validou pro gabarito, agora também usada ao vivo
-  autoCorrelate(buffer, sampleRate) {
-    const SIZE = buffer.length;
-    let sumOfSquares = 0;
-    for (let i = 0; i < SIZE; i++) sumOfSquares += buffer[i] * buffer[i];
-    const rms = Math.sqrt(sumOfSquares / SIZE);
-    if (rms < 0.001) return null;
+  stopAnalysis() {
+    if (this.analysisFrame) cancelAnimationFrame(this.analysisFrame);
+    this.analysisFrame = null;
+  }
 
-    const minFrequency = 70;
-    const maxFrequency = 1200;
-    const maxLag = Math.floor(sampleRate / minFrequency);
-    const minLag = Math.floor(sampleRate / maxFrequency);
+  disconnectAudioNodes() {
+    if (this.micSourceNode) {
+      try { this.micSourceNode.disconnect(); } catch (error) { }
+    }
+    if (this.monitorGain) {
+      try { this.monitorGain.disconnect(); } catch (error) { }
+    }
+    if (this.monitorFilter) {
+      try { this.monitorFilter.disconnect(); } catch (error) { }
+    }
+    if (this.monitorCompressor) {
+      try { this.monitorCompressor.disconnect(); } catch (error) { }
+    }
+    this.micSourceNode = null;
+    this.monitorGain = null;
+    this.monitorFilter = null;
+    this.monitorCompressor = null;
+  }
 
+  getPitch(buffer, sampleRate) {
+    const rms = Math.sqrt(buffer.reduce((sum, value) => sum + value * value, 0) / buffer.length);
+    if (rms < this.silenceThreshold) return null;
+    const minLag = Math.floor(sampleRate / 1200);
+    const maxLag = Math.floor(sampleRate / 70);
     let bestLag = -1;
     let bestCorrelation = 0;
 
-    for (let lag = minLag; lag <= maxLag; lag++) {
+    for (let lag = minLag; lag <= maxLag; lag += 1) {
       let correlation = 0;
-      for (let i = 0; i < SIZE - lag; i++) correlation += buffer[i] * buffer[i + lag];
-      correlation = correlation / (SIZE - lag);
+      for (let index = 0; index < buffer.length - lag; index += 1) correlation += buffer[index] * buffer[index + lag];
+      correlation /= buffer.length - lag;
       if (correlation > bestCorrelation) {
         bestCorrelation = correlation;
         bestLag = lag;
       }
     }
-
-    if (bestCorrelation > this.correlationThreshold && bestLag !== -1) {
-      return sampleRate / bestLag;
-    }
-    return null;
+    return bestCorrelation > this.correlationThreshold && bestLag !== -1 ? sampleRate / bestLag : null;
   }
 
-  // agora recebe a fatia do gabarito correspondente ao verso, não mais um texto esperado
   async stopAndSend(expectedGabaritoSlice = [], selectedLevel = 'easy') {
-    return new Promise((resolve) => {
-      if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
-        return resolve({ verseIndex: this.currentVerseIndex, points: 0, percentage: 0 });
-      }
+    if (!this.mediaRecorder || this.mediaRecorder.state === 'inactive') {
+      return { verseIndex: this.currentVerseIndex, points: 0, percentage: 0 };
+    }
 
-      this.mediaRecorder.onstop = async () => {
-        if (this.mediaRecorder.stream) {
-          this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
-        }
+    return new Promise(resolve => {
+      this.mediaRecorder.onstop = () => {
+        this.stopAnalysis();
         this.isRecording = false;
-
-        if (this.vocalPitches.length < 5) {
-          console.log("Sem voz/silêncio detectado. Pontuação: 0");
-          return resolve({ verseIndex: this.currentVerseIndex, sungText: "", percentage: 0, points: 0 });
-        }
-
-        const result = this.calculateRealScore(expectedGabaritoSlice, selectedLevel);
-        resolve(result);
+        resolve(this.vocalPitches.length < 5 ? { verseIndex: this.currentVerseIndex, sungText: '', percentage: 0, points: 0 } : this.calculateRealScore(expectedGabaritoSlice, selectedLevel));
       };
-
       this.mediaRecorder.stop();
     });
   }
 
+  close() {
+    this.stopAnalysis();
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') this.mediaRecorder.stop();
+    if (this.stream) this.stream.getTracks().forEach(track => track.stop());
+    this.stream = null;
+    this.disconnectAudioNodes();
+  }
+
   calculateRealScore(expectedGabaritoSlice, selectedLevel) {
-    // sem gabarito pra esse trecho -> cai pro modo "presença de voz", permissivo
-    if (!expectedGabaritoSlice || expectedGabaritoSlice.length === 0) {
-      const totalAmostrasVoz = this.vocalPitches.length;
-      let accuracy = Math.min(100, Math.round((totalAmostrasVoz / 30) * 100));
-      let points = Math.round(accuracy * 0.8);
+    if (!expectedGabaritoSlice.length) {
+      const percentage = Math.min(100, Math.round((this.vocalPitches.length / 30) * 100));
+      let points = Math.round(percentage * 0.8);
       if (selectedLevel === 'easy') points = Math.min(100, points + 15);
-      return { verseIndex: this.currentVerseIndex, sungText: "Voz detectada", percentage: accuracy, points };
+      return { verseIndex: this.currentVerseIndex, sungText: 'Voz detectada', percentage, points };
     }
 
-    // compara cada nota cantada com a nota esperada mais próxima no tempo, com tolerância de 2 semitons
-    let acertos = 0;
-    this.vocalPitches.forEach(({ tempo, nota }) => {
-      const alvo = expectedGabaritoSlice.reduce((prev, curr) =>
-        Math.abs(curr.tempo - tempo) < Math.abs(prev.tempo - tempo) ? curr : prev
-      );
-      if (Math.abs(alvo.nota - nota) <= 2) acertos++;
-    });
-
-    const accuracy = Math.round((acertos / this.vocalPitches.length) * 100);
-
-    const rules = {
-      easy: { minCut: 20, maxCap: 70 },
-      medium: { minCut: 30, maxCap: 80 },
-      hard: { minCut: 45, maxCap: 90 }
-    };
+    const correctNotes = this.vocalPitches.filter(({ tempo, nota }) => {
+      const target = expectedGabaritoSlice.reduce((closest, current) => Math.abs(current.tempo - tempo) < Math.abs(closest.tempo - tempo) ? current : closest);
+      return Math.abs(target.nota - nota) <= 2;
+    }).length;
+    const percentage = Math.round((correctNotes / this.vocalPitches.length) * 100);
+    const rules = { easy: { minCut: 20, maxCap: 70 }, medium: { minCut: 30, maxCap: 80 }, hard: { minCut: 45, maxCap: 90 } };
     const { minCut, maxCap } = rules[selectedLevel] || rules.easy;
-
-    let points = 0;
-    if (accuracy >= minCut) {
-      const scale = Math.min(1, (accuracy - minCut) / (maxCap - minCut));
-      points = Math.round(scale * 500);
-    }
-
-    return {
-      verseIndex: this.currentVerseIndex,
-      sungText: `${acertos}/${this.vocalPitches.length} notas certas`,
-      percentage: accuracy,
-      points
-    };
+    const points = percentage >= minCut ? Math.round(Math.min(1, (percentage - minCut) / (maxCap - minCut)) * 500) : 0;
+    return { verseIndex: this.currentVerseIndex, sungText: `${correctNotes}/${this.vocalPitches.length} notas certas`, percentage, points };
   }
 }
